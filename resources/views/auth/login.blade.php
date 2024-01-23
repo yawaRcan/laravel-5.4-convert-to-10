@@ -7,7 +7,7 @@
     <ul>
         <li>
             {!! Form::label('Naam') !!}
-            {!! Form::text('email') !!}
+            {!! Form::text('name') !!}
             {!! $errors->first('name', '<p class="error">:message</p>') !!}
         </li>
         <li>
