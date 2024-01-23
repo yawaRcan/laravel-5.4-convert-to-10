@@ -1,0 +1,105 @@
+hr {margin-top: 5px; margin-bottom: 5px;}
+
+.page-header {margin-top: 20px;}
+
+.navbar-default {
+    background-color: #2F3133;
+}
+
+.navbar-header , .navbar-default .navbar-nav>li>a {
+    color: white;
+}
+
+.navbar-header , .navbar-default .navbar-nav>li>a:hover {
+    color: dodgerblue;
+}
+
+.nav>li>a>img {
+    width: 30px;
+    height: 30px;
+}
+
+.onderverdeling {
+    height:500px;
+    overflow:auto;
+}
+
+.waarde {
+    padding-top: 7px;
+}
+
+#loading {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-top: -50px;
+    margin-left: -100px;
+}
+
+table.log {
+    font-size: 10px;
+}
+
+table.log {
+    display: table;
+    width: 100%;
+    background: #fff;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+table.log td {
+    display: table-cell;
+    padding: 6px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+table td.rechts, table th.rechts {
+    text-align: right;
+}
+
+.facturen-print{
+    font-family: Arial, Verdana, sans-serif;
+    font-size:	12px;
+}
+
+.redback {
+    color: red;
+}
+
+.counter-digit {
+    font-size: 50px;
+    height: 50px;
+    line-height: 50px;
+    margin: 0 2px 0 0;
+    font-family: 'Krona One', sans-serif;
+    color: red;
+}
+
+.countersquare {
+    text-align: center;
+    /*border: solid 1px black;*/
+    padding: 40px;
+}
+
+.memory {
+    font-size: 8px;
+    color: dark-grey;
+    position: fixed;
+    /*position:relative;
+    position:absolute;*/
+    bottom:0;
+    right:5px;
+}
+
+.footer {
+    background-color: #595757;
+    padding: 0px 0 20px 0;
+    color: white;
+    font-family: 'Open Sans Condensed', sans-serif;
+
+    position: relative;
+    min-height: 50px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+}

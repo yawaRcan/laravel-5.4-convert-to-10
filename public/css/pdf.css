@@ -1,0 +1,36 @@
+td.rechts, th.rechts {text-align: right;}
+
+td {
+    font-size: 0.7 em;
+}
+
+th {
+    font-size: 0.8 em;
+    border-bottom: 1px solid #ddd;
+}
+
+th, td {
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+.facturen-print td, .facturen-print th {
+    border: 1px solid #ddd;
+}
+
+.vet {
+    font-weight: bold;
+}
+
+.blauw {
+    color: blue;
+}
+
+.rood {
+    color: red;
+    font-weight: bold;
+}
+
+.groen {
+    color: green;
+}
