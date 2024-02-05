@@ -24,7 +24,7 @@
 
     <div class="panel panel-default">
         <div class="panel-body">
-            <h1>Dossiers Import</h1>
+            <h1>Dossiers Import Testing</h1>
         </div>
     </div>
 

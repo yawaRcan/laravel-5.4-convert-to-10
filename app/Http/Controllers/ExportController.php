@@ -18,6 +18,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Spatie\Activitylog\Models\Activity;
 use Maatwebsite\Excel\Concerns\ToModel;
 use app\Imports\ActivityLogImport;
+use App\Imports\DossierImport;
 
 
 
@@ -117,13 +118,14 @@ class ExportController extends Controller
     public function importFileIntoDB(Request $request)
     {
 
+        Excel::import(new DossierImport(), $request->file('sample_file'));
+        return 'ok';
         ini_set('max_execution_time', 300);
         ini_set('memory_limit', '700M');
-
         if ($request->hasFile('sample_file')) {
             $path = $request->file('sample_file')->getRealPath();
             $import = new Factuur;
-            $data = Excel::import($import, $path);
+
             $sheet = Excel::toArray(new ActivityLogs, $request->file('sample_file'));
             $numberOfRows = count($sheet[0]);
 
@@ -272,7 +274,6 @@ class ExportController extends Controller
 
         ini_set('max_execution_time', 300);
         ini_set('memory_limit', '700M');
-
         if ($request->hasFile('dossier_file')) {
 
             $path = $request->file('dossier_file')->getRealPath();
@@ -287,7 +288,7 @@ class ExportController extends Controller
             $numberOfRows = count($sheet[0]);
             activity('Import')->log('Import van dossiers gestart');
             $aantallogs++;
-
+            Excel::import(new DossierImport(), $request->file('dossier_file'));
             if ($data) {
 
                 $dossiers = Dossier::all();
@@ -295,213 +296,110 @@ class ExportController extends Controller
 
                 activity('Import')->log('Aantal lijnen gevonden in Excel file = ' . $numberOfRows);
                 $aantallogs++;
+                $d = 0;
 
-                foreach ($data as $key => $value) {
-                    if ($value->nummer != "") {
+                // foreach ($sheet as $key => $value) {
 
-                        $d = Dossier::where('dossiernummer', $value->nummer)->first();
+                //     if ($data) {
 
-                        if ($d == null) {
-                            $aantalniet++;
+                        
 
-                            $nieuwdossier = new Dossier();
-                            $nieuwdossier->dossiernummer = $value->nummer;
-                            $nieuwdossier->datum = $value['datum_creatie'];
-                            $nieuwdossier->nummerplaat = $value->nummerplaat;
+                //         if ($d == null) {
 
-                            // CHECK OF CAR BESTAAT
-                            /*$c = Car::where('brand', $value->merk)->first();
+                //             $aantalniet++;
 
-                            if ($c == null) {
-                                $nieuweauto = new Car();
-                                $nieuweauto->brand = $value->merk;
-                                $nieuweauto->save();
+                //             activity('Import')->log("Nieuw dossier " . $value->nummer . " aangemaakt");
+                //             $aantallogs++;
+                //         } else {
 
-                                activity('Import')->log("Nieuw automerk " . $value->merk . " aangemaakt");
-                                $aantallogs++;
+                //             $aangepast = 0;
 
-                                $nieuwdossier->merk_id = $nieuweauto->id;
-                            } else {
-                                $nieuwdossier->merk_id = $c->id;
-                            }
-                            */
+                //             if ($d->merk != $value->merk) {
+                //                 activity('Import')->log("Dossier " . $value->nummer . ": Merk aangepast van " . $d->merk . " naar " . $value->merk);
+                //                 $aantallogs++;
 
-                            $nieuwdossier->merk = $value->merk;
-                            $nieuwdossier->model = $value->model;
+                //                 $d->merk = $value->merk;
+                //                 $aangepast = 1;
+                //             }
 
-                            // CHECK OF VERZEKERING BESTAAT
-                            /*$m = Maatschappij::where('naam', $value->Verzekeraar)->first();
+                //             if ($d->model != $value->model) {
+                //                 activity('Import')->log("Dossier " . $value->nummer . ": Model aangepast van " . $d->model . " naar " . $value->model);
+                //                 $aantallogs++;
 
-                            if ($m == null) {
-                                $nieuwemaatschappij = new Maatschappij();
+                //                 $d->model = $value->model;
+                //                 $aangepast = 1;
+                //             }
 
-                                if ($value->Verzekeraar == "")
-                                {
-                                    $nieuwemaatschappij->naam = "onbekend";
-                                }
-                                else
-                                {
-                                    $nieuwemaatschappij->naam = $value->Verzekeraar;
-                                }
+                //             if ($d->makelaar != $value->makelaar) {
+                //                 activity('Import')->log("Dossier " . $value->nummer . ": Makelaar aangepast van " . $d->makelaar . " naar " . $value->makelaar);
+                //                 $aantallogs++;
 
-                                $nieuwemaatschappij->telefoon = "";
-                                $nieuwemaatschappij->website = "";
-                                $nieuwemaatschappij->save();
+                //                 $d->makelaar = $value->makelaar;
+                //                 $aangepast = 1;
+                //             }
 
-                                activity('Import')->log("Nieuwe verzekeringsmaatschappij " . $value->Verzekeraar . " aangemaakt");
-                                $aantallogs++;
+                //             if ($d->maatschappij != $value->verzekeraar) {
+                //                 activity('Import')->log("Dossier " . $value->nummer . ": Maatschappij aangepast van " . $d->maatschappij . " naar " . $value->verzekeraar);
+                //                 $aantallogs++;
 
-                                $nieuwdossier->verzekering_id = $nieuwemaatschappij->id;
-                            } else {
-                                $nieuwdossier->verzekering_id = $m->id;
-                            }
-                            */
+                //                 $d->maatschappij = $value->verzekeraar;
+                //                 $aangepast = 1;
+                //             }
 
-                            $nieuwdossier->maatschappij = $value->verzekeraar;
+                //             if ($d->resultaat != $value->resultaat) {
+                //                 activity('Import')->log("Dossier " . $value->nummer . ": Resultaat aangepast van " . $d->resultaat . " naar " . $value->resultaat);
+                //                 $aantallogs++;
 
-                            // CHECK OF MAKELAAR BESTAAT
-                            /*$mak = Makelaar::where('naam', $value->makelaar)->first();
+                //                 $d->resultaat = $value->resultaat;
+                //                 $aangepast = 1;
+                //             }
 
-                            if ($mak == null) {
+                //             if ($d->opmerkingen != $value->opmerkingen . "\n" . $value->opmerkingen2 . "\n" . $value->opmerkingen_ho) {
+                //                 $opmerkingenStr = "Dossier " . $value->nummer . ": Opmerkingen aangepast van " . $d->opmerkingen . " naar " . $value->opmerkingen . "\n" . $value->opmerkingen2 . "\n" . $value->opmerkingen_ho;
+                //                 activity('Import')->log(str_limit($opmerkingenStr, 185));
+                //                 $aantallogs++;
 
-                                $nieuwemakelaar = new Makelaar();
+                //                 $d->opmerkingen = str_limit($value->opmerkingen . "\n" . $value->opmerkingen2 . "\n" . $value->opmerkingen_ho, 185);
+                //                 $aangepast = 1;
+                //             }
 
-                                if ($value->makelaar == "")
-                                {
-                                    $nieuwemakelaar->naam = "onbekend";
-                                }
-                                else
-                                {
-                                    $nieuwemakelaar->naam = $value->makelaar;
-                                }
+                //             /* Added 04/12/2019 */
+                //             if ($d->status != $value->status) {
+                //                 activity('Import')->log("Dossier " . $value->nummer . ": Status aangepast van " . $d->status . " naar " . $value->status);
+                //                 $aantallogs++;
 
-                                $nieuwemakelaar->telefoon = "";
-                                $nieuwemakelaar->website = "";
-                                $nieuwemakelaar->save();
+                //                 $d->status = $value->status;
+                //                 $aangepast = 1;
+                //             }
+                //             /*******************/
 
-                                activity('Import')->log("Nieuwe makelaar " . $value->makelaar . " aangemaakt");
-                                $aantallogs++;
+                //             if ($value->facturen <> "") {
+                //                 $factarr = [];
+                //                 $factuurids = explode(',', $value->facturen);
 
-                                $nieuwdossier->makelaar_id = $nieuwemakelaar->id;
-                            } else {
-                                $nieuwdossier->makelaar_id = $mak->id;
-                            }
-                            */
+                //                 foreach ($factuurids as $fi) {
+                //                     $fact = DB::table('facturen')->where('factuurnummer', $fi)->first();
 
-                            $nieuwdossier->makelaar = $value->makelaar;
-                            $nieuwdossier->resultaat = $value->resultaat;
-                            $nieuwdossier->opmerkingen = $value->opmerkingen . "\n" . $value->opmerkingen2 . "\n" . $value->opmerkingen_ho;
+                //                     if ($fact <> null) {
+                //                         $factarr[] = $fact->id;
+                //                     }
+                //                 }
 
-                            /* Added 04/12/2019 */
-                            $nieuwdossier->status = $value->status;
-                            /*******************/
-
-                            $nieuwdossier->save();
-
-                            if ($value->facturen <> "") {
-                                $factuurids = explode(',', $value->facturen);
-
-                                foreach ($factuurids as $fi) {
-                                    $fact = DB::table('facturen')->where('factuurnummer', $fi)->first();
-
-                                    if ($fact <> null) {
-                                        $nieuwdossier->facturen()->attach($fact->id);
-                                    }
-                                }
-
-                                $nieuwdossier->save();
-                            }
-
-                            activity('Import')->log("Nieuw dossier " . $value->nummer . " aangemaakt");
-                            $aantallogs++;
-                        } else {
-                            $aangepast = 0;
-
-                            if ($d->merk != $value->merk) {
-                                activity('Import')->log("Dossier " . $value->nummer . ": Merk aangepast van " . $d->merk . " naar " . $value->merk);
-                                $aantallogs++;
-
-                                $d->merk = $value->merk;
-                                $aangepast = 1;
-                            }
-
-                            if ($d->model != $value->model) {
-                                activity('Import')->log("Dossier " . $value->nummer . ": Model aangepast van " . $d->model . " naar " . $value->model);
-                                $aantallogs++;
-
-                                $d->model = $value->model;
-                                $aangepast = 1;
-                            }
-
-                            if ($d->makelaar != $value->makelaar) {
-                                activity('Import')->log("Dossier " . $value->nummer . ": Makelaar aangepast van " . $d->makelaar . " naar " . $value->makelaar);
-                                $aantallogs++;
-
-                                $d->makelaar = $value->makelaar;
-                                $aangepast = 1;
-                            }
-
-                            if ($d->maatschappij != $value->verzekeraar) {
-                                activity('Import')->log("Dossier " . $value->nummer . ": Maatschappij aangepast van " . $d->maatschappij . " naar " . $value->verzekeraar);
-                                $aantallogs++;
-
-                                $d->maatschappij = $value->verzekeraar;
-                                $aangepast = 1;
-                            }
-
-                            if ($d->resultaat != $value->resultaat) {
-                                activity('Import')->log("Dossier " . $value->nummer . ": Resultaat aangepast van " . $d->resultaat . " naar " . $value->resultaat);
-                                $aantallogs++;
-
-                                $d->resultaat = $value->resultaat;
-                                $aangepast = 1;
-                            }
-
-                            if ($d->opmerkingen != $value->opmerkingen . "\n" . $value->opmerkingen2 . "\n" . $value->opmerkingen_ho) {
-                                $opmerkingenStr = "Dossier " . $value->nummer . ": Opmerkingen aangepast van " . $d->opmerkingen . " naar " . $value->opmerkingen . "\n" . $value->opmerkingen2 . "\n" . $value->opmerkingen_ho;
-                                activity('Import')->log(str_limit($opmerkingenStr, 185));
-                                $aantallogs++;
-
-                                $d->opmerkingen = str_limit($value->opmerkingen . "\n" . $value->opmerkingen2 . "\n" . $value->opmerkingen_ho, 185);
-                                $aangepast = 1;
-                            }
-
-                            /* Added 04/12/2019 */
-                            if ($d->status != $value->status) {
-                                activity('Import')->log("Dossier " . $value->nummer . ": Status aangepast van " . $d->status . " naar " . $value->status);
-                                $aantallogs++;
-
-                                $d->status = $value->status;
-                                $aangepast = 1;
-                            }
-                            /*******************/
-
-                            if ($value->facturen <> "") {
-                                $factarr = [];
-                                $factuurids = explode(',', $value->facturen);
-
-                                foreach ($factuurids as $fi) {
-                                    $fact = DB::table('facturen')->where('factuurnummer', $fi)->first();
-
-                                    if ($fact <> null) {
-                                        $factarr[] = $fact->id;
-                                    }
-                                }
-
-                                $d->facturen()->sync($factarr);
-                            }
+                //                 $d->facturen()->sync($factarr);
+                //             }
 
 
-                            if ($aangepast == 1) {
-                                $aangepastedossiers = $aangepastedossiers . "\n" . $value->nummer;
-                                $aantalaangepast++;
-                                $d->save();
-                            } else {
-                                $aantalwel++;
-                            }
-                        }
-                    }
-                }
+                //             if ($aangepast == 1) {
+                //                 $aangepastedossiers = $aangepastedossiers . "\n" . $value->nummer;
+                //                 $aantalaangepast++;
+                //                 $d->save();
+                //             } else {
+                //                 $aantalwel++;
+                //             }
+                //         }
+                //     }
+                //     // dd('not empty');
+                // }
             }
 
             activity('Import')->log("Import dossiers beeindigd");

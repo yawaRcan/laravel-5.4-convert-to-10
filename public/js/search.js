@@ -3,7 +3,12 @@ var timer;
 function up() {
     timer = setTimeout(function () {
         var keywords = $('#search-input').val();
-
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': csrfToken
+            }
+        });
         if (keywords.length > 0) {
             $.post("search/executeSearch", {keywords: keywords}).done(function (data) {
                 console.log(data)

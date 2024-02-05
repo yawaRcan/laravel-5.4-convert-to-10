@@ -47,6 +47,12 @@ function zoekFacturen() {
             "sortering": $('input[name=facturen_sortering]:checked').val()
         }
     ];
+    var csrfToken = $('meta[name="csrf-token"]').attr('content');
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': csrfToken
+        }
+    });
 
     $.post('search/searchInvoices', {data: myData}).done(function (data) {
         $('#search-results').html(data)
